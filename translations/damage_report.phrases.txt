@@ -1,0 +1,133 @@
+"Phrases"
+{
+	// Menu items: no colors here
+	"welcome"
+	{
+		"en"		"{olive}To set Damage Report preferences type {green}!dmg"
+	}
+	"roundend"
+	{
+		"en"		"Your result at round end"
+	}
+	"kills"
+	{
+		"#format"	"{1:i}"
+		"en"		"{1} kills"
+	}
+	"deaths"
+	{
+		"#format"	"{1:i}"
+		"en"		"{1} deaths"
+	}
+	"headshots"
+	{
+		"#format"	"{1:i}"
+		"en"		"{1} headshots"	
+	}
+	"captured"
+	{
+		"#format"	"{1:i}"
+		"en"		"{1} captures"
+	}
+	"mdest"
+	{
+		"#format"	"{1:s},{2:i},{3:i},{4:i}"
+		"en"		"{1} is most destructive player\n{2} killed ({3} headshots)\nTotal damage - {4}"
+	}
+	"hitbox0"
+	{
+		"en"		"body"
+	}
+	"hitbox1"
+	{
+		"en"		"head"
+	}
+	"hitbox2"
+	{
+		"en"		"chest"
+	}
+	"hitbox3"
+	{
+		"en"		"stomach"
+	}
+	"hitbox4"
+	{
+		"en"		"left arm"
+	}
+	"hitbox5"
+	{
+		"en"		"right arm"	
+	}
+	"hitbox6"
+	{
+		"en"		"left leg"
+	}
+	"hitbox7"
+	{
+		"en"		"right leg"
+	}
+	"injured"
+	{
+		"en"		"injured"
+	}
+	"killer"
+	{
+		"en"		" - killer"
+	}
+	"killed"
+	{
+		"en"		"killed"
+	}
+	"given"
+	{
+		"#format"	"{1:i}"
+		"en"		"Victims [damage - {1}]"
+	}
+	"taken"
+	{
+		"en"		"Attackers"
+	}
+	"yourstats" // {1} - victim name {2} - damage {3} - hits {4} - status(injured/killed)
+	{
+		"#format"	"{1:s},{2:i},{3:i},{4:s}"
+		"en"		"{1} - {2} in {3} hits - {4}"
+	}
+	"enemystats" // {1} - attacker name {2} - damage {3} - hits {4} - status(killer)
+	{
+		"#format"	"{1:s},{2:i},{3:i},{4:s}"
+		"en"		"{1} - {2} in {3} hits{4}"
+	}
+	"damagemenu"
+	{
+		"en"		"Damage Report"
+	}
+	"enable text"
+	{
+		"en"		"(disabled) Show damage in chat"
+	}
+	"disable text"
+	{
+		"en"		"Show damage in chat"
+	}
+	"enable panel"
+	{
+		"en"		"(disabled) Show damage panel"
+	}
+	"disable panel"
+	{
+		"en"		"Show damage panel"
+	}
+	"enable results"
+	{
+		"en"		"(disabled) Show end round stats"
+	}
+	"disable results"
+	{
+		"en"		"Show end round stats"
+	}
+	"chat" // {1} - victim name {2} - status (injured/killed) {3} - hitbox(head/arm/leg) {4} - damage amount
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:i}"
+		"en"		"{olive}{1}{default} - {2} in {green}{3}{default} - {4} damage"
+	}
+}

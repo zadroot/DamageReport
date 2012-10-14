@@ -1,0 +1,124 @@
+"Phrases"
+{
+	// Menu items: no colors here
+	"welcome"
+	{
+		"ru"		"{olive}Чтобы настроить статистику урона напишите {green}!dmg"
+	}
+	"roundend"
+	{
+		"ru"		"Ваш результат за этот раунд"
+	}
+	"kills"
+	{
+		"ru"		"{1} убийств"
+	}
+	"deaths"
+	{
+		"ru"		"{1} смертей"
+	}
+	"headshots"
+	{
+		"ru"		"{1} в голову"	
+	}
+	"captured"
+	{
+		"ru"		"{1} объектов захвачено"
+	}
+	"mdest"
+	{
+		"ru"		"{1} самый разрушительный игрок\nУбил {2} (из них {3} в голову)\nНанес урона - {4}"
+	}
+	"hitbox0"
+	{
+		"ru"		"тело"
+	}
+	"hitbox1"
+	{
+		"ru"		"голову"
+	}
+	"hitbox2"
+	{
+		"ru"		"грудь"
+	}
+	"hitbox3"
+	{
+		"ru"		"живот"
+	}
+	"hitbox4"
+	{
+		"ru"		"левую руку"
+	}
+	"hitbox5"
+	{
+		"ru"		"правую руку"	
+	}
+	"hitbox6"
+	{
+		"ru"		"левую ногу"
+	}
+	"hitbox7"
+	{
+		"ru"		"правую ногу"
+	}
+	"injured"
+	{
+		"ru"		"ранен"
+	}
+	"killer"
+	{
+		"ru"		" - убил"
+	}
+	"killed"
+	{
+		"ru"		"убит"
+	}
+	"given"
+	{
+		"ru"		"Жертвы [урон - {1}]"
+	}
+	"taken"
+	{
+		"ru"		"По вам стреляли"
+	}
+	"yourstats" // {1} - victim name {2} - damage {3} - hits {4} - status(injured/killed)
+	{
+		"ru"		"{1} - {3} попал - {2} ({4})"
+	}
+	"enemystats" // {1} - attacker name {2} - damage {3} - hits {4} - status(killer)
+	{
+		"ru"		"{1} - {3} попал - {2}{4}"
+	}
+	"damagemenu"
+	{
+		"ru"		"Отображение панели урона"
+	}
+	"enable text"
+	{
+		"ru"		"(откл) Показывать урон в чате"
+	}
+	"disable text"
+	{
+		"ru"		"Показывать урон в чате"
+	}
+	"enable panel"
+	{
+		"ru"		"(откл) Показывать панель после смерти"
+	}
+	"disable panel"
+	{
+		"ru"		"Показывать панель после смерти"
+	}
+	"enable results"
+	{
+		"ru"		"(откл) Показывать результаты в конце раунда"
+	}
+	"disable results"
+	{
+		"ru"		"Показывать результаты в конце раунда"
+	}
+	"chat" // {1} - victim name {2} - status (injured/killed) {3} - hitbox(head/arm/leg) {4} - damage amount
+	{
+		"ru"		"{olive}{1}{default} - {2} в {green}{3}{default} - {4}"
+	}
+}
