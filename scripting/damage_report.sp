@@ -1,4 +1,4 @@
-/**
+ /**
 * DoD:S Damage Report by Root
 *
 * Description:
@@ -9,37 +9,37 @@
 * Changelog & more info at http://goo.gl/4nKhJ
 */
 
-// ====[ SEMICOLON ]===================================================
+// ====[ SEMICOLON ]=====================================================
 #pragma semicolon 1
 
-// ====[ INCLUDES ]====================================================
+// ====[ INCLUDES ]======================================================
 #include <sourcemod>
 #include <clientprefs>
 #include <colors>
 
-// ====[ CONSTANTS ]===================================================
-#define PLUGIN_NAME         "DoD:S Damage Report"
-#define PLUGIN_VERSION      "1.3.1"
+// ====[ CONSTANTS ]=====================================================
+#define PLUGIN_NAME      "DoD:S Damage Report"
+#define PLUGIN_VERSION   "1.3.1"
 
-#define DOD_MAXPLAYERS     33
-#define DOD_MAXHITGROUPS   7
+#define DOD_MAXPLAYERS   33
+#define DOD_MAXHITGROUPS 7
 
-// ====[ VARIABLES ]===================================================
-new Handle:damagereport_enable, // ConVars
-	Handle:damagereport_mdest,
-	Handle:damagereport_info[DOD_MAXPLAYERS], // Welcome timer
-	Handle:dmg_chatprefs, // Client preferences
+// ====[ VARIABLES ]=====================================================
+new Handle:damagereport_enable = INVALID_HANDLE, // ConVars
+	Handle:damagereport_mdest  = INVALID_HANDLE,
+	Handle:damagereport_info[DOD_MAXPLAYERS], // Timer
+	Handle:dmg_chatprefs, // Clientprefs
 	Handle:dmg_panelprefs,
 	Handle:dmg_endroundprefs,
 	cookie_chatmode[DOD_MAXPLAYERS]    = {false, ...}, // Cookies
-	cookie_deathpanel[DOD_MAXPLAYERS]  = {true, ...},
-	cookie_resultpanel[DOD_MAXPLAYERS] = {true, ...},
+	cookie_deathpanel[DOD_MAXPLAYERS]  = {true,  ...},
+	cookie_resultpanel[DOD_MAXPLAYERS] = {true,  ...},
 	bool:roundend = false, // Round end stats
 	kills[DOD_MAXPLAYERS],
 	deaths[DOD_MAXPLAYERS],
 	headshots[DOD_MAXPLAYERS],
 	captures[DOD_MAXPLAYERS],
-	damage_temp[DOD_MAXPLAYERS], // All damage data
+	damage_temp[DOD_MAXPLAYERS], // Damage data (given/taken/summary)
 	damage_summ[DOD_MAXPLAYERS],
 	damage_given[DOD_MAXPLAYERS][DOD_MAXPLAYERS],
 	damage_taken[DOD_MAXPLAYERS][DOD_MAXPLAYERS],
@@ -48,7 +48,7 @@ new Handle:damagereport_enable, // ConVars
 	String:yourstatus[DOD_MAXPLAYERS][DOD_MAXPLAYERS][32], // Player status (killed/injured)
 	String:killerstatus[DOD_MAXPLAYERS][DOD_MAXPLAYERS][32];
 
-// ====[ PLUGIN ]======================================================
+// ====[ PLUGIN ]========================================================
 public Plugin:myinfo =
 {
 	name			= PLUGIN_NAME,
@@ -60,26 +60,26 @@ public Plugin:myinfo =
 
 
 /**
- * ---------------------------------------------------------------------
+ * -----------------------------------------------------------------------
  *	   ____           ______                  __  _
  *	  / __ \____     / ____/__  ______  _____/ /_(_)____  ____  _____
  *	 / / / / __ \   / /_   / / / / __ \/ ___/ __/ // __ \/ __ \/ ___/
  *	/ /_/ / / / /  / __/  / /_/ / / / / /__/ /_/ // /_/ / / / (__  )
  *	\____/_/ /_/  /_/     \__,_/_/ /_/\___/\__/_/ \____/_/ /_/____/
  *
- * ---------------------------------------------------------------------
+ * -----------------------------------------------------------------------
 */
 
 /* OnPluginStart()
  *
  * When the plugin starts up.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public OnPluginStart()
 {
 	// Create ConVars
 	CreateConVar("dod_damagestats_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
-	damagereport_enable = CreateConVar("sm_damage_report",       "1", "Enable or disable Damage Report",                                    FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	damagereport_mdest  = CreateConVar("sm_damage_report_mdest", "2", "Show most destructive player at end of round in hint(1) or chat(2)", FCVAR_PLUGIN, true, 0.0, true, 2.0);
+	damagereport_enable = CreateConVar("sm_damage_report",       "1", "Whether or not enable Damage Report",                                 FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	damagereport_mdest  = CreateConVar("sm_damage_report_mdest", "2", "Specified where show most destructive player: in hint(1) or chat(2)", FCVAR_PLUGIN, true, 0.0, true, 2.0);
 
 	// Hook player events
 	HookEvent("dod_stats_player_damage", Event_Player_Damage);
@@ -88,7 +88,7 @@ public OnPluginStart()
 	// Hook game events
 	HookEvent("dod_point_captured", Event_Point_Captured);
 	HookEvent("dod_round_start",    Event_Round_Start);
-	HookEvent("dod_round_win",      Event_Round_End, EventHookMode_Post);
+	HookEvent("dod_round_win",      Event_Round_End);
 
 	// Create/register client command
 	RegConsoleCmd("dmg", DamageReportMenu);
@@ -112,7 +112,7 @@ public OnPluginStart()
 /* OnClientPutInServer()
  *
  * Called when a client is entering the game.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public OnClientPutInServer(client)
 {
 	if (client > 0 && !IsFakeClient(client))
@@ -128,7 +128,7 @@ public OnClientPutInServer(client)
 /* OnClientCookiesCached()
  *
  * Called once a client's saved cookies have been loaded from the database.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public OnClientCookiesCached(client)
 {
 	// If cookies was not ready until connection, wait until OnClientCookiesCached()
@@ -138,7 +138,7 @@ public OnClientCookiesCached(client)
 /* OnClientDisconnect()
  *
  * When a client disconnects from the server.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public OnClientDisconnect(client)
 {
 	// Client should be valid
@@ -156,28 +156,29 @@ public OnClientDisconnect(client)
 	}
 }
 
+
 /**
- * ---------------------------------------------------------------------
+ * -----------------------------------------------------------------------
  *		______                  __
  *	   / ____/_   _____  ____  / /______
  *	  / __/  | | / / _ \/ __ \/ __/ ___/
  *	 / /___  | |/ /  __/ / / / /_(__  )
  *	/_____/  |___/\___/_/ /_/\__/____/
  *
- * ---------------------------------------------------------------------
+ * -----------------------------------------------------------------------
 */
 
 /* Event_Player_Damage()
  *
  * Called when a player taking damage.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	// Disable event if plugin is disabled
 	if (GetConVarBool(damagereport_enable))
 	{
 		new attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
-		new victim = GetClientOfUserId(GetEventInt(event, "victim"));
+		new victim   = GetClientOfUserId(GetEventInt(event, "victim"));
 
 		// Victim and attacker should be valid and not a teammates
 		if (attacker > 0 && victim > 0 && GetClientTeam(attacker) != GetClientTeam(victim))
@@ -186,14 +187,13 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 
 			// Gettin names of involved players
 			GetClientName(attacker, attacker_name, sizeof(attacker_name));
-			GetClientName(victim, victim_name, sizeof(victim_name));
+			GetClientName(victim,   victim_name, sizeof(victim_name));
 
 			// Calculate damage
-			new damage = GetEventInt(event, "damage");
+			new damage   = GetEventInt(event, "damage");
 			new hitgroup = GetEventInt(event, "hitgroup");
 
 			/** HITGROUPS
-			0 = Generic (body)
 			1 = Head
 			2 = Upper Chest
 			3 = Lower Chest
@@ -210,8 +210,6 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 			decl String:g_Hitbox[DOD_MAXHITGROUPS + 1][32], String:data[32];
 
 			// Hitgroup definition
-			Format(data, sizeof(data), "%t", "hitbox0", victim);
-			g_Hitbox[0] = data;
 			Format(data, sizeof(data), "%t", "hitbox1", victim);
 			g_Hitbox[1] = data;
 			Format(data, sizeof(data), "%t", "hitbox2", victim);
@@ -278,16 +276,17 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 /* Event_Player_Killed()
  *
  * Called when a player kills another.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public Event_Player_Killed(Handle:event, const String:name[], bool:dontBroadcast)
 {
+	// Disable event if plugin is disabled
 	if (GetConVarBool(damagereport_enable))
 	{
 		// Check if its not a end of round
 		if (roundend == false)
 		{
 			new attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
-			new victim = GetClientOfUserId(GetEventInt(event, "victim"));
+			new victim   = GetClientOfUserId(GetEventInt(event, "victim"));
 
 			if (attacker > 0 && victim > 0)
 			{
@@ -302,8 +301,8 @@ public Event_Player_Killed(Handle:event, const String:name[], bool:dontBroadcast
 
 					// NULL_STRING fix issue with unknown characters in a panel
 					Format(buffer, sizeof(buffer), NULL_STRING, victim);
-					Format(given, sizeof(given), "%T", "given", victim, damage_temp[victim]);
-					Format(taken, sizeof(taken), "%T", "taken", victim);
+					Format(given,  sizeof(given),  "%T", "given", victim, damage_temp[victim]);
+					Format(taken,  sizeof(taken),  "%T", "taken", victim);
 
 					// Check client's preferences
 					if (cookie_deathpanel[victim])
@@ -364,7 +363,7 @@ public Event_Player_Killed(Handle:event, const String:name[], bool:dontBroadcast
 /* Event_Point_Captured()
  *
  * When a flag/point is captured.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public Event_Point_Captured(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	new client;
@@ -385,7 +384,7 @@ public Event_Point_Captured(Handle:event, const String:name[], bool:dontBroadcas
 /* Event_Round_Start()
  *
  * Called when the round starts.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public Event_Round_Start(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	// Round started
@@ -397,10 +396,10 @@ public Event_Round_Start(Handle:event, const String:name[], bool:dontBroadcast)
 		// For all players
 		if (IsClientInGame(client))
 		{
-			kills[client] = 0;
-			deaths[client] = 0;
-			headshots[client] = 0;
-			captures[client] = 0;
+			kills[client]       = 0;
+			deaths[client]      = 0;
+			headshots[client]   = 0;
+			captures[client]    = 0;
 			damage_temp[client] = 0;
 			damage_summ[client] = 0;
 
@@ -409,8 +408,8 @@ public Event_Round_Start(Handle:event, const String:name[], bool:dontBroadcast)
 			{
 				damage_given[client][i] = 0;
 				damage_taken[client][i] = 0;
-				hits[client][i] = 0;
-				hurts[client][i] = 0;
+				hits[client][i]         = 0;
+				hurts[client][i]        = 0;
 			}
 		}
 	}
@@ -419,9 +418,10 @@ public Event_Round_Start(Handle:event, const String:name[], bool:dontBroadcast)
 /* Event_Round_End()
  *
  * Called when a round ends.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public Event_Round_End(Handle:event, const String:name[], bool:dontBroadcast)
 {
+	// Disable event if plugin is disabled
 	if (GetConVarBool(damagereport_enable))
 	{
 		// Globals
@@ -456,16 +456,16 @@ public Event_Round_End(Handle:event, const String:name[], bool:dontBroadcast)
 						DrawPanelItem(panel, menutitle);
 
 						Format(overallkills, sizeof(overallkills), "%T", "kills", client, kills[client]);
-						if (kills[client] > 0) DrawPanelText(panel, overallkills);
+						if (kills[client] > 0)     DrawPanelText(panel, overallkills);
 
 						Format(overalldeaths, sizeof(overalldeaths), "%T", "deaths", client, deaths[client]);
-						if (deaths[client] > 0) DrawPanelText(panel, overalldeaths);
+						if (deaths[client] > 0)    DrawPanelText(panel, overalldeaths);
 
 						Format(overallheadshots, sizeof(overallheadshots), "%T", "headshots", client, headshots[client]);
 						if (headshots[client] > 0) DrawPanelText(panel, overallheadshots);
 
 						Format(overallcaptures, sizeof(overallcaptures), "%T", "captured", client, captures[client]);
-						if (captures[client] > 0) DrawPanelText(panel, overallcaptures);
+						if (captures[client] > 0)  DrawPanelText(panel, overallcaptures);
 
 						// Draw panel till bonusround
 						SendPanelToClient(panel, client, Handler_DoNothing, 14);
@@ -479,14 +479,16 @@ public Event_Round_End(Handle:event, const String:name[], bool:dontBroadcast)
 		if (GetConVarInt(damagereport_mdest))
 		{
 			decl String:mdest_name[MAX_NAME_LENGTH];
-
 			GetClientName(mdest, mdest_name, sizeof(mdest_name));
 
 			// Most destructive player stats (kills, deaths & overall damage)
 			if (damage_summ[mdest] > 0)
 			{
-				if      (GetConVarInt(damagereport_mdest) == 1) PrintHintTextToAll("%t", "mdest", mdest_name, kills[mdest], headshots[mdest], damage_summ[mdest]);
-				else if (GetConVarInt(damagereport_mdest) == 2) CPrintToChatAll("{green}%t", "mdest", mdest_name, kills[mdest], headshots[mdest], damage_summ[mdest]);
+				switch (GetConVarInt(damagereport_mdest))
+				{
+					case 1: PrintHintTextToAll    ("%t", "mdest", mdest_name, kills[mdest], headshots[mdest], damage_summ[mdest]);
+					case 2: CPrintToChatAll("{green}%t", "mdest", mdest_name, kills[mdest], headshots[mdest], damage_summ[mdest]);
+				}
 			}
 		}
 	}
@@ -494,20 +496,20 @@ public Event_Round_End(Handle:event, const String:name[], bool:dontBroadcast)
 
 
 /**
- * ---------------------------------------------------------------------
+ * -----------------------------------------------------------------------
  *	   ______                                          __
  *	  / ____/___  ____ ___  ____ ___  ____ _____  ____/ /____
  *	 / /   / __ \/ __ `__ \/ __ `__ \/ __ `/ __ \/ __  / ___/
  *	/ /___/ /_/ / / / / / / / / / / / /_/ / / / / /_/ (__  )
  *	\____/\____/_/ /_/ /_/_/ /_/ /_/\__,_/_/ /_/\__,_/____/
  *
- * ---------------------------------------------------------------------
+ * -----------------------------------------------------------------------
 */
 
 /* DamageReportMenu()
  *
  * When client called 'dmgmenu' command.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public Action:DamageReportMenu(client, args)
 {
 	// Shows Damage Report settings on command
@@ -518,7 +520,7 @@ public Action:DamageReportMenu(client, args)
 /* DamageReportSelect()
  *
  * Dont closes menu when option selected.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public DamageReportSelect(client, CookieMenuAction:action, any:info, String:buffer[], maxlen)
 {
 	// Menu shouldn't disappear when client selected something
@@ -528,20 +530,20 @@ public DamageReportSelect(client, CookieMenuAction:action, any:info, String:buff
 
 
 /**
- * ---------------------------------------------------------------------
+ * -----------------------------------------------------------------------
  *	   ______            __   _
  *	  / ____/___  ____  / /__(_)__   ____
  *	 / /   / __ \/ __ \/ //_/ / _ \/____/
  *	/ /___/ /_/ / /_/ / ,< / /  __/(__ )
  *	\____/\____/\____/_/|_/_/\___/____/
  *
- * ---------------------------------------------------------------------
+ * -----------------------------------------------------------------------
 */
 
 /* Handler_MenuDmg()
  *
  * Cookie's main menu.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public Handler_MenuDmg(Handle:menu, MenuAction:action, param1, param2)
 {
 	// When client is pressed a button
@@ -601,7 +603,7 @@ public Handler_MenuDmg(Handle:menu, MenuAction:action, param1, param2)
 /* LoadPreferences()
  *
  * Loads client's preferences on connect.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 LoadPreferences(client)
 {
 	decl String:buffer[32];
@@ -623,14 +625,17 @@ LoadPreferences(client)
 /* ShowMenu()
  *
  * Damage Report menu.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 ShowMenu(client)
 {
+	// Creates a new, empty menu using the default style
 	new Handle:menu = CreateMenu(Handler_MenuDmg);
 
 	decl String:buffer[100];
 
 	Format(buffer, sizeof(buffer), "%t:", "damagemenu", client);
+
+	// Sets the menu's default title/instruction message
 	SetMenuTitle(menu, buffer);
 
 	if (cookie_chatmode[client])
@@ -656,6 +661,7 @@ ShowMenu(client)
 
 	AddMenuItem(menu, NULL_STRING, buffer);
 
+	// Sets whether or not the menu has an exit button
 	SetMenuExitButton(menu, true);
 
 	// Displays cookies menu until client close it
@@ -664,20 +670,20 @@ ShowMenu(client)
 
 
 /**
- * ---------------------------------------------------------------------
+ * -----------------------------------------------------------------------
  *		__  ____
  *	   /  |/  (_)__________
  *	  / /|_/ / // ___/ ___/
  *	 / /  / / /(__  ) /__
  *	/_/  /_/_//____/\___/
  *
- * ---------------------------------------------------------------------
+ * -----------------------------------------------------------------------
 */
 
 /* resetall()
  *
  * Reset all player's damage & other stats.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 resetall(client)
 {
 	for (new i = 1; i <= MaxClients; i++)
@@ -685,17 +691,18 @@ resetall(client)
 		// Because every hit/damage is indexed
 		if (IsClientInGame(client))
 		{
-			kills[client] = 0;
-			deaths[client] = 0;
-			headshots[client] = 0;
-			captures[client] = 0;
-			damage_temp[client] = 0;
-			damage_summ[client] = 0;
+			kills[client]           = 0;
+			deaths[client]          = 0;
+			headshots[client]       = 0;
+			captures[client]        = 0;
+			damage_temp[client]     = 0;
+			damage_summ[client]     = 0;
 
+			// For all
 			damage_given[client][i] = 0;
 			damage_taken[client][i] = 0;
-			hits[client][i] = 0;
-			hurts[client][i] = 0;
+			hits[client][i]         = 0;
+			hurts[client][i]        = 0;
 		}
 	}
 }
@@ -703,14 +710,14 @@ resetall(client)
 /* resethits()
  *
  * Reset stats of damage & hits.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 resethits(client)
 {
 	for (new i = 1; i <= MaxClients; i++)
 	{
 		if (IsClientInGame(client))
 		{
-			damage_temp[client] = 0;
+			damage_temp[client]     = 0;
 
 			// If plugin should not show most destructive player - reset damage done by most destructive player
 			if (!GetConVarInt(damagereport_mdest))
@@ -719,8 +726,8 @@ resethits(client)
 			// Becaue all damage/hits is actually indexed
 			damage_given[client][i] = 0;
 			damage_taken[client][i] = 0;
-			hits[client][i] = 0;
-			hurts[client][i] = 0;
+			hits[client][i]         = 0;
+			hurts[client][i]        = 0;
 		}
 	}
 }
@@ -728,7 +735,7 @@ resethits(client)
 /* Timer_WelcomePlayer()
  *
  * Shows welcome message to a client.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public Action:Timer_WelcomePlayer(Handle:timer, any:client)
 {
 	// Timer expired, kill it now
@@ -739,5 +746,5 @@ public Action:Timer_WelcomePlayer(Handle:timer, any:client)
 /* Handler_DoNothing()
  *
  * Empty menu handler.
- * --------------------------------------------------------------------- */
+ * ----------------------------------------------------------------------- */
 public Handler_DoNothing(Handle:menu, MenuAction:action, param1, param2){}
