@@ -40,7 +40,7 @@
 	}
 	"hitbox2"
 	{
-		"en"		"chest"
+		"en"		"body"
 	}
 	"hitbox3"
 	{
