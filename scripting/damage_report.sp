@@ -39,7 +39,7 @@ new	Handle:damagereport_enable = INVALID_HANDLE, // ConVars
 	deaths[DOD_MAXPLAYERS],
 	headshots[DOD_MAXPLAYERS],
 	captures[DOD_MAXPLAYERS],
-	damage_temp[DOD_MAXPLAYERS], // Damage (given, taken & summary)
+	damage_temp[DOD_MAXPLAYERS], // Damage (given/taken/summary)
 	damage_summ[DOD_MAXPLAYERS],
 	damage_given[DOD_MAXPLAYERS][DOD_MAXPLAYERS],
 	damage_taken[DOD_MAXPLAYERS][DOD_MAXPLAYERS],
@@ -78,8 +78,8 @@ public OnPluginStart()
 {
 	// Create ConVars
 	CreateConVar("dod_damagestats_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
-	damagereport_enable = CreateConVar("sm_damage_report",       "1", "Whether or not enable Damage Report",                                 FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	damagereport_mdest  = CreateConVar("sm_damage_report_mdest", "2", "Specified where show most destructive player: in hint(1) or chat(2)", FCVAR_PLUGIN, true, 0.0, true, 2.0);
+	damagereport_enable = CreateConVar("sm_damage_report",       "1", "Whether or not enable Damage Report",                                  FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	damagereport_mdest  = CreateConVar("sm_damage_report_mdest", "2", "Determines where show most destructive player: in hint(1) or chat(2)", FCVAR_PLUGIN, true, 0.0, true, 2.0);
 
 	// Hook ConVar changing
 	HookConVarChange(damagereport_enable, OnConVarChange);
@@ -305,7 +305,7 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
  * -------------------------------------------------------------------------------- */
 public Event_Player_Killed(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	// Check if its not a end of round
+	// Check if its not an end of round
 	if (roundend == false)
 	{
 		new attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
@@ -323,9 +323,9 @@ public Event_Player_Killed(Handle:event, const String:name[], bool:dontBroadcast
 				deaths[victim]++;
 
 				// NULL_STRING fix issue with unknown characters in a panel
-				Format(buffer, sizeof(buffer), NULL_STRING, victim);
 				Format(given, sizeof(given), "%T", "given", victim, damage_temp[victim]);
 				Format(taken, sizeof(taken), "%T", "taken", victim);
+				Format(buffer, sizeof(buffer), NULL_STRING, victim);
 
 				// Check client's preferences
 				if (cookie_deathpanel[victim])
