@@ -31,7 +31,7 @@
 	}
 	"mdest"
 	{
-		"#format"	"{1:s},{2:i},{3:i},{4:i}"
+		"#format"	"{1:N},{2:i},{3:i},{4:i}"
 		"en"		"{1} is most destructive player\n{2} killed ({3} headshots)\nTotal damage - {4}"
 	}
 	"hitbox1"
@@ -123,7 +123,7 @@
 	}
 	"chat" // {1} - victim name {2} - status (injured/killed) {3} - hitbox(head/arm/leg) {4} - damage amount
 	{
-		"#format"	"{1:s},{2:s},{3:s},{4:i}"
+		"#format"	"{1:N},{2:s},{3:s},{4:i}"
 		"en"		"{olive}{1}{default} - {2} in {green}{3}{default} - {4} damage"
 	}
 }
