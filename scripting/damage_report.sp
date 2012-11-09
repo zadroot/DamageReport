@@ -25,8 +25,8 @@
 #define DOD_MAXHITGROUPS 7
 
 // ====[ VARIABLES ]===============================================================
-new	Handle:damagereport_enable = INVALID_HANDLE, // ConVars
-	Handle:damagereport_mdest  = INVALID_HANDLE,
+new	Handle:damagereport_enable, // ConVars
+	Handle:damagereport_mdest,
 	Handle:damagereport_info[DOD_MAXPLAYERS], // Welcome timer
 	Handle:dmg_chatprefs, // Clientprefs
 	Handle:dmg_panelprefs,
@@ -78,8 +78,8 @@ public OnPluginStart()
 {
 	// Create ConVars
 	CreateConVar("dod_damagestats_version", PLUGIN_VERSION, PLUGIN_NAME, FCVAR_NOTIFY|FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED);
-	damagereport_enable = CreateConVar("sm_damage_report",       "1", "Whether or not enable Damage Report",                                  FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	damagereport_mdest  = CreateConVar("sm_damage_report_mdest", "2", "Determines where show most destructive player: in hint(1) or chat(2)", FCVAR_PLUGIN, true, 0.0, true, 2.0);
+	damagereport_enable = CreateConVar("sm_damage_report",       "1", "Whether or not enable Damage Report",                             FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	damagereport_mdest  = CreateConVar("sm_damage_report_mdest", "2", "Where to show most destructive player stats: hint(1) or chat(2)", FCVAR_PLUGIN, true, 0.0, true, 2.0);
 
 	// Hook ConVar changing
 	HookConVarChange(damagereport_enable, OnConVarChange);
@@ -132,7 +132,6 @@ public OnConVarChange(Handle:convar, const String:oldValue[], const String:newVa
 			UnhookEvent("dod_round_win",           Event_Round_End);
 		}
 
-		// Otherwise hook all events
 		case 1:
 		{
 			HookEvent("dod_stats_player_damage", Event_Player_Damage);
@@ -186,7 +185,7 @@ public OnClientDisconnect(client)
 			damagereport_info[client] = INVALID_HANDLE;
 		}
 
-		// Reset disconnected player
+		// Reset damage stats
 		resetall(client);
 	}
 }
@@ -215,7 +214,7 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 	// Victim and attacker should be valid and not a teammates
 	if (attacker > 0 && victim > 0 && GetClientTeam(attacker) != GetClientTeam(victim))
 	{
-		// Calculate damage
+		// Finding event key
 		new damage   = GetEventInt(event, "damage");
 		new hitgroup = GetEventInt(event, "hitgroup");
 
@@ -236,7 +235,9 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 		// Overall 7 hitboxes avalible
 		decl String:g_Hitbox[DOD_MAXHITGROUPS + 1][32], String:data[32];
 
-		// Hitgroup definition
+		// Hitgroup definitions
+		Format(data, sizeof(data), "%t", "hitbox0", victim);
+		g_Hitbox[0] = data;
 		Format(data, sizeof(data), "%t", "hitbox1", victim);
 		g_Hitbox[1] = data;
 		Format(data, sizeof(data), "%t", "hitbox2", victim);
@@ -252,7 +253,7 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 		Format(data, sizeof(data), "%t", "hitbox7", victim);
 		g_Hitbox[7] = data;
 
-		// Player do a headshot - save it
+		// Save headshots
 		if (headshot) headshots[attacker]++;
 
 		// Times hit/injured
@@ -305,7 +306,7 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
  * -------------------------------------------------------------------------------- */
 public Event_Player_Killed(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	// Check if its not an end of round
+	// Check if that is not an end of round
 	if (roundend == false)
 	{
 		new attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
@@ -313,7 +314,7 @@ public Event_Player_Killed(Handle:event, const String:name[], bool:dontBroadcast
 
 		if (attacker > 0 && victim > 0)
 		{
-			// Legitimate
+			// Legitimate kill
 			if (GetClientTeam(attacker) != GetClientTeam(victim))
 			{
 				decl String:buffer[32], String:given[32], String:taken[32];
@@ -428,7 +429,7 @@ public Event_Round_Start(Handle:event, const String:name[], bool:dontBroadcast)
 			damage_temp[client] = 0;
 			damage_summ[client] = 0;
 
-			// We should index twice damage & hits events
+			// Damage & hits needs double index
 			for (new i = 1; i <= MaxClients; i++)
 			{
 				damage_given[client][i] = 0;
@@ -534,6 +535,8 @@ public Action:DamageReportMenu(client, args)
 {
 	// Shows Damage Report settings on command
 	ShowMenu(client);
+
+	// Prevents 'unknown command' reply in client console
 	return Plugin_Handled;
 }
 
@@ -543,7 +546,7 @@ public Action:DamageReportMenu(client, args)
  * -------------------------------------------------------------------------------- */
 public DamageReportSelect(client, CookieMenuAction:action, any:info, String:buffer[], maxlen)
 {
-	// Menu shouldn't disappear when client selected something
+	// Menu shouldn't disappear on select
 	if (action == CookieMenuAction_SelectOption)
 		ShowMenu(client);
 }
@@ -569,7 +572,7 @@ public Handler_MenuDmg(Handle:menu, MenuAction:action, param1, param2)
 	// When client is pressed a button
 	if (action == MenuAction_Select)
 	{
-		// Statements
+		// Switch param2
 		switch (param2)
 		{
 			case 0: /* First - chat preferences */
@@ -616,8 +619,7 @@ public Handler_MenuDmg(Handle:menu, MenuAction:action, param1, param2)
 	}
 
 	// Client pressed exit button - close menu
-	else if (action == MenuAction_End)
-		CloseHandle(menu);
+	else if (action == MenuAction_End) CloseHandle(menu);
 }
 
 /* LoadPreferences()
@@ -717,8 +719,6 @@ resetall(client)
 			captures[client]        = 0;
 			damage_temp[client]     = 0;
 			damage_summ[client]     = 0;
-
-			// For all
 			damage_given[client][i] = 0;
 			damage_taken[client][i] = 0;
 			hits[client][i]         = 0;

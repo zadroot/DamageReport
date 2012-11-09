@@ -34,6 +34,10 @@
 		"#format"	"{1:N},{2:i},{3:i},{4:i}"
 		"en"		"{1} is most destructive player\n{2} killed ({3} headshots)\nTotal damage - {4}"
 	}
+	"hitbox0"
+	{
+		"en"		"body"
+	}
 	"hitbox1"
 	{
 		"en"		"head"
