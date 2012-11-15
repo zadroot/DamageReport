@@ -24,6 +24,11 @@
 		"#format"	"{1:i}"
 		"en"		"{1} headshots"	
 	}
+	"alldamage"
+	{
+		"#format"	"{1:i}"
+		"en"		"{1} damage given"
+	}
 	"captured"
 	{
 		"#format"	"{1:i}"
