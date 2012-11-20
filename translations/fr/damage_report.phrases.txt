@@ -1,0 +1,128 @@
+"Phrases"
+{
+	// Menu items: no colors here
+	"welcome"
+	{
+		"fr"		"{olive}Pour définir les préférences du Rapport de Dommages tapez {green}!dmg
+	}
+	"roundend"
+	{
+		"fr"		"Votre résultat a la fin du round"
+	}
+	"kills"
+	{
+		"fr"		"{1} tues"
+	}
+	"deaths"
+	{
+		"fr"		"{1} morts"
+	}
+	"headshots"
+	{
+		"fr"		"{1} headshots"	
+	}
+	"alldamage"
+	{
+		"fr"		"{1} dommages affliges"
+	}
+	"captured"
+	{
+		"fr"		"{1} captures"
+	}
+	"mdest"
+	{
+		"fr"		"{1} est le joueur le plus destructeur\n{2} a tue ({3} headshots)\nTotal dmg - {4}"
+	}
+	"hitbox0"
+	{
+		"fr"		"corp"
+	}
+	"hitbox1"
+	{
+		"fr"		"tete"
+	}
+	"hitbox2"
+	{
+		"fr"		"corp"
+	}
+	"hitbox3"
+	{
+		"fr"		"estomac"
+	}
+	"hitbox4"
+	{
+		"fr"		"bras gauche"
+	}
+	"hitbox5"
+	{
+		"fr"		"bras droit"	
+	}
+	"hitbox6"
+	{
+		"fr"		"jambe gauche"
+	}
+	"hitbox7"
+	{
+		"fr"		"jambe droite"
+	}
+	"injured"
+	{
+		"fr"		"blesse"
+	}
+	"killer"
+	{
+		"fr"		" - tueur"
+	}
+	"killed"
+	{
+		"fr"		"a tue"
+	}
+	"given"
+	{
+		"fr"		"Victimes [dmg - {1}]"
+	}
+	"taken"
+	{
+		"fr"		"Attaquants"
+	}
+	"yourstats" // {1} - victim name {2} - damage {3} - hits {4} - status(injured/killed)
+	{
+		"fr"		"{1} - {2} en {3} tirs - {4}"
+	}
+	"enemystats" // {1} - attacker name {2} - damage {3} - hits {4} - status(killer)
+	{
+		"fr"		"{1} - {2} en {3} tirs - {4}"
+	}
+	"damagemenu"
+	{
+		"fr"		"Rapport des dommages"
+	}
+	"enable text"
+	{
+		"fr"		"(desactiver) Affiche les dommages dans le chat"
+	}
+	"disable text"
+	{
+		"fr"		"Affiche les dommages dans le chat"
+	}
+	"enable panel"
+	{
+		"fr"		"(desactiver) Affiche les dommages dans une fenetre"
+	}
+	"disable panel"
+	{
+		"fr"		"Affiche les dommages dans une fenetre"
+	}
+	"enable results"
+	{
+		"fr"		"(desactiver) Affiche les statistiques en fin de round"
+	}
+	"disable results"
+	{
+		"fr"		"Affiche les statistiques en fin de round"
+	}
+	"chat" // {1} - victim name {2} - status (injured/killed) {3} - hitbox(head/arm/leg) {4} - damage amount
+	{
+		"fr"		"{olive}{1}{default} - {2} - {green}{3}{default} - {4} dmg"
+	}
+}
