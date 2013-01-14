@@ -22,7 +22,7 @@
 	"headshots"
 	{
 		"#format"	"{1:i}"
-		"en"		"{1} headshots"	
+		"en"		"{1} headshots"
 	}
 	"alldamage"
 	{
@@ -61,7 +61,7 @@
 	}
 	"hitbox5"
 	{
-		"en"		"right arm"	
+		"en"		"right arm"
 	}
 	"hitbox6"
 	{
@@ -130,9 +130,9 @@
 	{
 		"en"		"Show end round stats"
 	}
-	"chat" // {1} - victim name {2} - status (injured/killed) {3} - hitbox(head/arm/leg) {4} - damage amount
+	"chat" // {1} - teamcolor {2} - victim name {3} - status (injured/killed) {4} - hitbox(head/arm/leg) {5} - damage amount
 	{
-		"#format"	"{1:N},{2:s},{3:s},{4:i}"
-		"en"		"{olive}{1}{default} - {2} in {green}{3}{default} - {4} damage"
+		"#format"	"{1:s},{2:N},{3:s},{4:s},{5:i}"
+		"en"		"{1}{2}{default} - {3} in {green}{4}{default} - {olive}{5}{default} damage"
 	}
 }

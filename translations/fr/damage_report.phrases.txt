@@ -3,11 +3,11 @@
 	// Menu items: no colors here
 	"welcome"
 	{
-		"fr"		"{olive}Pour définir les préférences du Rapport de Dommages tapez {green}!dmg
+		"fr"		"{olive}Pour dĞ¹finir les prĞ¹fĞ¹rences du Rapport de Dommages tapez {green}!dmg"
 	}
 	"roundend"
 	{
-		"fr"		"Votre résultat a la fin du round"
+		"fr"		"Votre rĞ¹sultat a la fin du round"
 	}
 	"kills"
 	{
@@ -91,7 +91,7 @@
 	}
 	"enemystats" // {1} - attacker name {2} - damage {3} - hits {4} - status(killer)
 	{
-		"fr"		"{1} - {2} en {3} tirs - {4}"
+		"fr"		"{1} - {2} en {3} tirs{4}"
 	}
 	"damagemenu"
 	{
@@ -121,8 +121,8 @@
 	{
 		"fr"		"Affiche les statistiques en fin de round"
 	}
-	"chat" // {1} - victim name {2} - status (injured/killed) {3} - hitbox(head/arm/leg) {4} - damage amount
+	"chat" // {1} - teamcolor {2} - victim name {3} - status (injured/killed) {4} - hitbox(head/arm/leg) {5} - damage amount
 	{
-		"fr"		"{olive}{1}{default} - {2} - {green}{3}{default} - {4} dmg"
+		"fr"		"{1}{2}{default} - {3} - {green}{4}{default} - {olive}{5}{default}dmg"
 	}
 }

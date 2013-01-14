@@ -1,0 +1,128 @@
+"Phrases"
+{
+	// Menu items: no colors here
+	"welcome"
+	{
+		"de"		"{olive}Um die Schadensanzeige zu aendern, schreibe {green}!dmg"
+	}
+	"roundend"
+	{
+		"de"		"Dein Ergebnis am Rundenende"
+	}
+	"kills"
+	{
+		"de"		"{1} getoetet"
+	}
+	"deaths"
+	{
+		"de"		"{1} Tode"
+	}
+	"headshots"
+	{
+		"de"		"{1} Kopfschuesse"
+	}
+	"alldamage"
+	{
+		"de"		"{1} Schaden gegeben"
+	}
+	"captured"
+	{
+		"de"		"{1} Eroberungen"
+	}
+	"mdest"
+	{
+		"de"		"{1} ist der vernichtendste Spieler\n{2} getoetet ({3} Kopfschuesse)\nTotaler Schaden - {4}"
+	}
+	"hitbox0"
+	{
+		"de"		"Koerper"
+	}
+	"hitbox1"
+	{
+		"de"		"Kopf"
+	}
+	"hitbox2"
+	{
+		"de"		"Koerper"
+	}
+	"hitbox3"
+	{
+		"de"		"Bauch"
+	}
+	"hitbox4"
+	{
+		"de"		"linker Arm"
+	}
+	"hitbox5"
+	{
+		"de"		"rechter Arm"
+	}
+	"hitbox6"
+	{
+		"de"		"linkes Bein"
+	}
+	"hitbox7"
+	{
+		"de"		"rechtes Bein"
+	}
+	"injured"
+	{
+		"de"		"verletzt"
+	}
+	"killer"
+	{
+		"de"		" - Killer"
+	}
+	"killed"
+	{
+		"de"		"getoetet"
+	}
+	"given"
+	{
+		"de"		"Opfer [Schaden - {1}]"
+	}
+	"taken"
+	{
+		"de"		"Angreifer"
+	}
+	"yourstats" // {1} - victim name {2} - damage {3} - hits {4} - status(injured/killed)
+	{
+		"de"		"{1} - {2} in {3} Treffer - {4}"
+	}
+	"enemystats" // {1} - attacker name {2} - damage {3} - hits {4} - status(killer)
+	{
+		"de"		"{1} - {2} in {3} Treffer{4}"
+	}
+	"damagemenu"
+	{
+		"de"		"Schadensreport"
+	}
+	"enable text"
+	{
+		"de"		"(deaktiviert) Zeige Schaden im Chat"
+	}
+	"disable text"
+	{
+		"de"		"Zeige Schaden im Chat"
+	}
+	"enable panel"
+	{
+		"de"		"(deaktiviert) Zeige Schadensuebersicht"
+	}
+	"disable panel"
+	{
+		"de"		"Zeige Schadensuebersicht"
+	}
+	"enable results"
+	{
+		"de"		"(deaktiviert) Zeige Schaden am Rundenende"
+	}
+	"disable results"
+	{
+		"de"		"Zeige Schaden am Rundenende"
+	}
+	"chat" // {1} - teamcolor {2} - victim name {3} - status (injured/killed) {4} - hitbox(head/arm/leg) {5} - damage amount
+	{
+		"de"		"{1}{2}{default} - {3} in {green}{4}{default} - {olive}{5}{default} Schaden"
+	}
+}

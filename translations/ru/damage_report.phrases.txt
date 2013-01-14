@@ -121,8 +121,8 @@
 	{
 		"ru"		"Показывать результаты в конце раунда"
 	}
-	"chat" // {1} - victim name {2} - status (injured/killed) {3} - hitbox(head/arm/leg) {4} - damage amount
+	"chat" // {1} - teamcolor {2} - victim name {3} - status (injured/killed) {4} - hitbox(head/arm/leg) {5} - damage amount
 	{
-		"ru"		"{olive}{1}{default} - {2} в {green}{3}{default} - {4}"
+		"ru"		"{1}{2}{default} - {3} в {green}{4}{default} - {olive}{5}"
 	}
 }
