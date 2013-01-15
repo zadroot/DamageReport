@@ -123,6 +123,6 @@
 	}
 	"chat" // {1} - teamcolor {2} - victim name {3} - status (injured/killed) {4} - hitbox(head/arm/leg) {5} - damage amount
 	{
-		"ru"		"{1}{2}{default} - {3} в {green}{4}{default} - {olive}{5}"
+		"ru"		"{1}{2}{default} - {3} в {green}{4}{default} - урон {olive}{5}"
 	}
 }
