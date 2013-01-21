@@ -3,31 +3,31 @@
 	// Menu items: no colors here
 	"welcome"
 	{
-		"fr"		"{olive}Pour dйfinir les prйfйrences du Rapport de Dommages tapez {green}!dmg"
+		"fr"		"{lightgreen}Pour definir les preferences du {olive}Rapport de Dommages{lightgreen} tapez {green}!dmg"
 	}
 	"roundend"
 	{
-		"fr"		"Votre rйsultat a la fin du round"
+		"fr"		"Votre resultat a la fin du round"
 	}
 	"kills"
 	{
-		"fr"		"{1} tues"
+		"fr"		"{1} tue(s)"
 	}
 	"deaths"
 	{
-		"fr"		"{1} morts"
+		"fr"		"{1} mort(s)"
 	}
 	"headshots"
 	{
-		"fr"		"{1} headshots"	
+		"fr"		"{1} headshot(s)"	
 	}
 	"alldamage"
 	{
-		"fr"		"{1} dommages affliges"
+		"fr"		"{1} dommage(s) afflige(s)"
 	}
 	"captured"
 	{
-		"fr"		"{1} captures"
+		"fr"		"{1} capture(s)"
 	}
 	"mdest"
 	{
@@ -87,11 +87,11 @@
 	}
 	"yourstats" // {1} - victim name {2} - damage {3} - hits {4} - status(injured/killed)
 	{
-		"fr"		"{1} - {2} en {3} tirs - {4}"
+		"fr"		"{1} - {2} en {3} tir(s) - {4}"
 	}
 	"enemystats" // {1} - attacker name {2} - damage {3} - hits {4} - status(killer)
 	{
-		"fr"		"{1} - {2} en {3} tirs{4}"
+		"fr"		"{1} - {2} en {3} tir(s){4}"
 	}
 	"damagemenu"
 	{

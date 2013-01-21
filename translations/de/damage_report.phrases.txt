@@ -3,7 +3,7 @@
 	// Menu items: no colors here
 	"welcome"
 	{
-		"de"		"{olive}Um die Schadensanzeige zu aendern, schreibe {green}!dmg"
+		"de"		"{lightgreen}Um die {olive}Schadensanzeige zu aendern{lightgreen}, schreibe {green}!dmg"
 	}
 	"roundend"
 	{

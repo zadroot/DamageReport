@@ -3,7 +3,7 @@
 	// Menu items: no colors here
 	"welcome"
 	{
-		"en"		"{olive}To set Damage Report preferences type {green}!dmg"
+		"en"		"{lightgreen}To set {olive}Damage Report{lightgreen} preferences type {green}!dmg"
 	}
 	"roundend"
 	{

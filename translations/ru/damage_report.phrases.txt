@@ -3,7 +3,7 @@
 	// Menu items: no colors here
 	"welcome"
 	{
-		"ru"		"{olive}Чтобы настроить статистику урона напишите {green}!dmg"
+		"ru"		"{lightgreen}Чтобы настроить {olive}статистику урона{lightgreen} напишите {green}!dmg"
 	}
 	"roundend"
 	{
