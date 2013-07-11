@@ -3,15 +3,15 @@
 	// Menu items: no colors here
 	"welcome"
 	{
-		"fr"		"{lightgreen}Pour definir les preferences du {olive}Rapport de Dommages{lightgreen} tapez {green}!dmg"
+		"fr"		"{lightgreen}Pour définir les préférences du {olive}Rapport de Dommages{lightgreen} tapez {green}!dmg"
 	}
 	"roundend"
 	{
-		"fr"		"Votre resultat a la fin du round"
+		"fr"		"Votre résultat à la fin du round"
 	}
 	"kills"
 	{
-		"fr"		"{1} tue(s)"
+		"fr"		"{1} tué(s)"
 	}
 	"deaths"
 	{
@@ -23,7 +23,7 @@
 	}
 	"alldamage"
 	{
-		"fr"		"{1} dommage(s) afflige(s)"
+		"fr"		"{1} dommage(s) affligé(s)"
 	}
 	"captured"
 	{
@@ -31,7 +31,7 @@
 	}
 	"mdest"
 	{
-		"fr"		"{1} est le joueur le plus destructeur\n{2} a tue ({3} headshots)\nTotal dmg - {4}"
+		"fr"		"{1} est le joueur le plus destructeur\n{2} a tué ({3} headshot(s))\nTotal dmg - {4}"
 	}
 	"hitbox0"
 	{
@@ -39,7 +39,7 @@
 	}
 	"hitbox1"
 	{
-		"fr"		"tete"
+		"fr"		"tête"
 	}
 	"hitbox2"
 	{
@@ -67,7 +67,7 @@
 	}
 	"injured"
 	{
-		"fr"		"blesse"
+		"fr"		"blessé"
 	}
 	"killer"
 	{
@@ -75,7 +75,7 @@
 	}
 	"killed"
 	{
-		"fr"		"a tue"
+		"fr"		"a tué"
 	}
 	"given"
 	{
@@ -99,7 +99,7 @@
 	}
 	"enable text"
 	{
-		"fr"		"(desactiver) Affiche les dommages dans le chat"
+		"fr"		"(désactiver) Affiche les dommages dans le chat"
 	}
 	"disable text"
 	{
@@ -107,15 +107,15 @@
 	}
 	"enable panel"
 	{
-		"fr"		"(desactiver) Affiche les dommages dans une fenetre"
+		"fr"		"(désactiver) Affiche les dommages dans une fenêtre"
 	}
 	"disable panel"
 	{
-		"fr"		"Affiche les dommages dans une fenetre"
+		"fr"		"Affiche les dommages dans une fenêtre"
 	}
 	"enable results"
 	{
-		"fr"		"(desactiver) Affiche les statistiques en fin de round"
+		"fr"		"(désactiver) Affiche les statistiques en fin de round"
 	}
 	"disable results"
 	{
