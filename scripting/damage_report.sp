@@ -9,9 +9,6 @@
 * Changelog & more info at http://goo.gl/4nKhJ
 */
 
-// ====[ SEMICOLON ]=========================================================
-#pragma semicolon 1
-
 // ====[ INCLUDES ]==========================================================
 #include <clientprefs>
 #include <morecolors> // 1.6+ version
@@ -26,19 +23,18 @@
 // ====[ VARIABLES ]=========================================================
 new	Handle:damagereport_enable, // ConVars
 	Handle:damagereport_mdest,
-	Handle:damagereport_info[DOD_MAXPLAYERS + 1], // Welcome timer
 	Handle:dmg_chatprefs, // Clientprefs
 	Handle:dmg_panelprefs,
 	Handle:dmg_endroundprefs,
-	cookie_chatmode[DOD_MAXPLAYERS + 1]    = {false, ...}, // Cookies
-	cookie_deathpanel[DOD_MAXPLAYERS + 1]  = {false, ...},
-	cookie_resultpanel[DOD_MAXPLAYERS + 1] = {true,  ...},
+	bool:cookie_chatmode[DOD_MAXPLAYERS + 1]    = {false, ...}, // Cookies
+	bool:cookie_deathpanel[DOD_MAXPLAYERS + 1]  = {false, ...},
+	bool:cookie_resultpanel[DOD_MAXPLAYERS + 1] = {true,  ...},
 	bool:roundend = false, // Round end stats
 	kills[DOD_MAXPLAYERS + 1],
 	deaths[DOD_MAXPLAYERS + 1],
 	headshots[DOD_MAXPLAYERS + 1],
 	captures[DOD_MAXPLAYERS + 1],
-	damage_temp[DOD_MAXPLAYERS + 1], // Damage (given, taken & summary)
+	damage_temp[DOD_MAXPLAYERS + 1], // Damage (given, taken and summary)
 	damage_summ[DOD_MAXPLAYERS + 1],
 	damage_given[DOD_MAXPLAYERS + 1][DOD_MAXPLAYERS + 1],
 	damage_taken[DOD_MAXPLAYERS + 1][DOD_MAXPLAYERS + 1],
@@ -55,7 +51,7 @@ public Plugin:myinfo =
 	description = "Shows damage stats, round stats and most destructive player",
 	version     = PLUGIN_VERSION,
 	url         = "http://dodsplugins.com/"
-};
+}
 
 
 /**
@@ -82,17 +78,9 @@ public OnPluginStart()
 
 	// Hook main ConVar change
 	HookConVarChange(damagereport_enable, OnConVarChange);
+	OnConVarChange(damagereport_enable, "0", "1");
 
-	// Hook DoD:S unique player hurt event
-	HookEvent("dod_stats_player_damage", Event_Player_Damage);
-
-	// Hook event's
-	HookEvent("dod_point_captured", Event_Point_Captured);
-	HookEvent("dod_round_start",    Event_Round_Start, EventHookMode_PostNoCopy);
-	HookEvent("dod_round_win",      Event_Round_End,   EventHookMode_PostNoCopy);
-	HookEvent("dod_game_over",      Event_Round_End,   EventHookMode_PostNoCopy);
-
-	// Create/register damage report commands
+	// Create / register damage report command
 	RegConsoleCmd("dmg", DamageReportMenu);
 
 	// Load translations
@@ -107,7 +95,7 @@ public OnPluginStart()
 	decl String:title[64]; Format(title, sizeof(title), "%t", "damagemenu");
 
 	// Add clientprefs item called "Damage Report"
-	if (LibraryExists("clientprefs")) SetCookieMenuItem(DamageReportSelect, MENU_NO_PAGINATION, title);
+	if (LibraryExists("clientprefs")) SetCookieMenuItem(DamageReportSelect, MENU_TIME_FOREVER, title);
 }
 
 /* OnConVarChange()
@@ -128,7 +116,6 @@ public OnConVarChange(Handle:convar, const String:oldValue[], const String:newVa
 			UnhookEvent("dod_round_win",           Event_Round_End,   EventHookMode_PostNoCopy);
 			UnhookEvent("dod_game_over",           Event_Round_End,   EventHookMode_PostNoCopy);
 		}
-
 		case true:
 		{
 			HookEvent("dod_stats_player_damage", Event_Player_Damage);
@@ -150,10 +137,13 @@ public OnClientPutInServer(client)
 	if (IsValidClient(client))
 	{
 		// Are clients cookies have been loaded from the database?
-		if (AreClientCookiesCached(client)) LoadPreferences(client);
+		if (AreClientCookiesCached(client))
+		{
+			LoadPreferences(client);
+		}
 
-		// Show welcome message
-		damagereport_info[client] = CreateTimer(30.0, Timer_WelcomePlayer, client, TIMER_FLAG_NO_MAPCHANGE);
+		// Show welcome message after 30 seconds of connection
+		CreateTimer(30.0, Timer_WelcomePlayer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
 
@@ -164,28 +154,19 @@ public OnClientPutInServer(client)
 public OnClientCookiesCached(client)
 {
 	// If cookies was not ready until connection, wait until OnClientCookiesCached()
-	if (IsValidClient(client)) LoadPreferences(client);
+	if (IsValidClient(client))
+	{
+		LoadPreferences(client);
+	}
 }
 
 /* OnClientDisconnect()
  *
  * When a client disconnects from the server.
  * -------------------------------------------------------------------------- */
-public OnClientDisconnect(client)
+public OnClientDisconnect_Post(client)
 {
-	// Client should be valid
-	if (IsValidClient(client))
-	{
-		// Kill timer
-		if (damagereport_info[client] != INVALID_HANDLE)
-		{
-			CloseHandle(damagereport_info[client]);
-			damagereport_info[client] = INVALID_HANDLE;
-		}
-
-		// Reset damage stats
-		resetall(client);
-	}
+	resetall(client);
 }
 
 
@@ -215,7 +196,7 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 		new hitgroup = GetEventInt(event, "hitgroup");
 
 		// Make sure attacker and victim is okay
-		if (attacker > 0 && victim > 0 && GetClientTeam(attacker) != GetClientTeam(victim))
+		if (attacker && victim && GetClientTeam(attacker) != GetClientTeam(victim))
 		{
 			// 7 hitboxes is avaliable
 			decl String:Hitbox[DOD_MAXHITGROUPS + 1][32], String:data[32], String:color[10];
@@ -262,7 +243,9 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 
 				// Show chat notifications if client wants
 				if (cookie_chatmode[attacker])
+				{
 					CPrintToChat(attacker, "%t", "chat", color, victim, yourstatus[attacker][victim], Hitbox[hitgroup], damage);
+				}
 			}
 			else
 			{
@@ -280,15 +263,15 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 				// Check client's preferences
 				if (cookie_deathpanel[victim])
 				{
-					new Handle:panel = CreatePanel();
+					new Handle:panel = CreatePanel(), i;
 
 					// Show panel if player do any damage
-					if (damage_temp[victim] > 0) DrawPanelItem(panel, given);
+					if (damage_temp[victim]) DrawPanelItem(panel, given);
 
-					for (new i = 1; i <= MaxClients; i++)
+					for (i = 1; i <= MaxClients; i++)
 					{
 						// Check for all damaged victims, otherwise not involved enemies will be shown
-						if (IsClientInGame(i) && damage_given[victim][i] > 0)
+						if (IsClientInGame(i) && damage_given[victim][i])
 						{
 							// Show names of all victims
 							decl String:victims[72], String:victimname[MAX_NAME_LENGTH];
@@ -301,9 +284,9 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 
 					// Panel with attackers
 					DrawPanelItem(panel, taken);
-					for (new i = 1; i <= MaxClients; i++)
+					for (i = 1; i <= MaxClients; i++)
 					{
-						if (IsClientInGame(i) && damage_taken[victim][i] > 0)
+						if (IsClientInGame(i) && damage_taken[victim][i])
 						{
 							decl String:attackers[72], String:attackername[MAX_NAME_LENGTH];
 							GetClientName(i, attackername, sizeof(attackername));
@@ -332,7 +315,9 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
 				if (hitgroup == 1) headshots[attacker]++;
 
 				if (cookie_chatmode[attacker])
+				{
 					CPrintToChat(attacker, "%t", "chat", color, victim, yourstatus[attacker][victim], Hitbox[hitgroup], damage);
+				}
 
 				// Reset all damage to zero, otherwise panel with all results be always shown
 				resethits(victim);
@@ -347,16 +332,12 @@ public Event_Player_Damage(Handle:event, const String:name[], bool:dontBroadcast
  * -------------------------------------------------------------------------- */
 public Event_Point_Captured(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	new client;
-
 	// There may be more than 1 capper
 	decl String:cappers[256];
 	GetEventString(event, "cappers", cappers, sizeof(cappers));
-
-	for (new i = 0 ; i < strlen(cappers); i++)
+	for (new i; i < strlen(cappers); i++)
 	{
-		client = cappers[i];
-		captures[client]++;
+		captures[cappers[i]]++;
 	}
 }
 
@@ -370,7 +351,10 @@ public Event_Round_Start(Handle:event, const String:name[], bool:dontBroadcast)
 	roundend = false;
 
 	// Reset everything
-	for (new client = 1; client <= MaxClients; client++) resetall(client);
+	for (new client = 1; client <= MaxClients; client++)
+	{
+		OnClientDisconnect_Post(client);
+	}
 }
 
 /* Event_Round_End()
@@ -383,15 +367,13 @@ public Event_Round_End(Handle:event, const String:name[], bool:dontBroadcast)
 	new client, mdest;
 	roundend = true;
 
-	for (new i = 1; i <= MaxClients; i++)
+	for (client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(i))
+		if (IsClientInGame(client))
 		{
-			client = i;
-
 			// Getting most kills & damage from all players to define most destructive
-			if (kills[i] > kills[mdest]) mdest = i;
-			else if (kills[i] == kills[mdest] && damage_summ[i] > damage_summ[mdest]) mdest = i;
+			if (kills[client] > kills[mdest]) mdest = client;
+			else if (kills[client] == kills[mdest] && damage_summ[client] > damage_summ[mdest]) mdest = client;
 
 			// Are client wants to see roundend panel?
 			if (cookie_resultpanel[client])
@@ -404,10 +386,7 @@ public Event_Round_End(Handle:event, const String:name[], bool:dontBroadcast)
 				     String:overalldamage[64];
 
 				// Dont show panel if client dont do any action below
-				if (kills[client] > 0
-				|| deaths[client] > 0
-				|| headshots[client] > 0
-				|| captures[client] > 0)
+				if (kills[client] || deaths[client] || headshots[client] || captures[client])
 				{
 					new Handle:panel = CreatePanel();
 
@@ -416,30 +395,30 @@ public Event_Round_End(Handle:event, const String:name[], bool:dontBroadcast)
 					DrawPanelItem(panel, menutitle);
 
 					// If player is killed at least 1 player - add kill stats
-					if (kills[client] > 0)
+					if (kills[client])
 					{
 						Format(overallkills, sizeof(overallkills), "%T", "kills", client, kills[client]);
 						DrawPanelText(panel, overallkills);
 					}
-					if (deaths[client] > 0)
+					if (deaths[client])
 					{
 						// Format a string for translations
 						Format(overalldeaths, sizeof(overalldeaths), "%T", "deaths", client, deaths[client]);
 						DrawPanelText(panel, overalldeaths);
 					}
-					if (headshots[client] > 0)
+					if (headshots[client])
 					{
 						Format(overallheadshots, sizeof(overallheadshots), "%T", "headshots", client, headshots[client]);
 
 						// And draws a raw line of text on a panel
 						DrawPanelText(panel, overallheadshots);
 					}
-					if (damage_summ[client] > 0)
+					if (damage_summ[client])
 					{
 						Format(overalldamage, sizeof(overalldamage), "%T", "alldamage", client, damage_summ[client]);
 						DrawPanelText(panel, overalldamage);
 					}
-					if (captures[client] > 0)
+					if (captures[client])
 					{
 						Format(overallcaptures, sizeof(overallcaptures), "%T", "captured", client, captures[client]);
 						DrawPanelText(panel, overallcaptures);
@@ -457,7 +436,7 @@ public Event_Round_End(Handle:event, const String:name[], bool:dontBroadcast)
 	if (GetConVarInt(damagereport_mdest))
 	{
 		// Most destructive player stats
-		if (damage_summ[mdest] > 0)
+		if (damage_summ[mdest])
 		{
 			decl String:color[10];
 
@@ -505,9 +484,11 @@ public Action:DamageReportMenu(client, args)
  * -------------------------------------------------------------------------- */
 public DamageReportSelect(client, CookieMenuAction:action, any:info, String:buffer[], maxlen)
 {
-	// Menu shouldn't disappear on selection
+	// Menu should not disappear on selection
 	if (action == CookieMenuAction_SelectOption)
+	{
 		ShowMenu(client);
+	}
 }
 
 
@@ -539,21 +520,15 @@ public Handler_MenuDmg(Handle:menu, MenuAction:action, client, param)
 				case 0: /* First - chat preferences */
 				{
 					/* If enabled - be disabled and vice versa */
-					if (cookie_chatmode[client])
-						 cookie_chatmode[client] = false;
-					else cookie_chatmode[client] = true;
+					cookie_chatmode[client] = !cookie_chatmode[client];
 				}
 				case 1: /* Second - damage report panel */
 				{
-					if (cookie_deathpanel[client])
-						 cookie_deathpanel[client] = false;
-					else cookie_deathpanel[client] = true;
+					cookie_deathpanel[client] = !cookie_deathpanel[client];
 				}
 				case 2: /* Third - results panel prefs */
 				{
-					if (cookie_resultpanel[client])
-						 cookie_resultpanel[client] = false;
-					else cookie_resultpanel[client] = true;
+					cookie_resultpanel[client] = !cookie_resultpanel[client];
 				}
 			}
 
@@ -599,16 +574,16 @@ LoadPreferences(client)
 
 	// Retrieve the value of a Client preference cookie (for chat preferences)
 	GetClientCookie(client, dmg_chatprefs, buffer, sizeof(buffer));
-	if(!StrEqual(buffer, NULL_STRING)) cookie_chatmode[client] = StringToInt(buffer);
+	if (buffer[0]) cookie_chatmode[client] = bool:StringToInt(buffer);
 
 	// for death panel
 	GetClientCookie(client, dmg_panelprefs, buffer, sizeof(buffer));
-	if(!StrEqual(buffer, NULL_STRING)) cookie_deathpanel[client] = StringToInt(buffer);
+	if (buffer[0]) cookie_deathpanel[client] = bool:StringToInt(buffer);
 
 	GetClientCookie(client, dmg_endroundprefs, buffer, sizeof(buffer));
 
-	// Convert value
-	if(!StrEqual(buffer, NULL_STRING)) cookie_resultpanel[client] = StringToInt(buffer);
+	// Any buffer should exists in player cookie. If not, use default value
+	if (buffer[0]) cookie_resultpanel[client] = bool:StringToInt(buffer);
 }
 
 /* ShowMenu()
@@ -626,27 +601,17 @@ ShowMenu(client)
 	// Sets the menu's default title/instruction message
 	SetMenuTitle(menu, buffer);
 
-	if (cookie_chatmode[client])
-		Format(buffer, sizeof(buffer), "%t", "disable text", client);
-	else
-		Format(buffer, sizeof(buffer), "%t", "enable text", client);
+	Format(buffer, sizeof(buffer), "%t", cookie_chatmode[client] ? "disable text" : "enable text", client);
 
 	// Something must be added on 'AddMenuItem', otherwise Damage Report menu items will not be shown
 	AddMenuItem(menu, NULL_STRING, buffer);
 
-	if (cookie_deathpanel[client])
-		Format(buffer, sizeof(buffer), "%t", "disable panel", client);
-	else
-		Format(buffer, sizeof(buffer), "%t", "enable panel", client);
+	Format(buffer, sizeof(buffer), "%t", cookie_deathpanel[client] ? "disable panel" : "enable panel", client);
 
 	// For every param
 	AddMenuItem(menu, NULL_STRING, buffer);
 
-	if (cookie_resultpanel[client])
-		Format(buffer, sizeof(buffer), "%t", "disable results", client);
-	else
-		Format(buffer, sizeof(buffer), "%t", "enable results", client);
-
+	Format(buffer, sizeof(buffer), "%t", cookie_resultpanel[client] ? "disable results" : "enable results", client);
 	AddMenuItem(menu, NULL_STRING, buffer);
 
 	// Add 'ExitBack' and 'Exit' buttons to clientprefs menu
@@ -675,23 +640,20 @@ ShowMenu(client)
  * -------------------------------------------------------------------------- */
 resetall(client)
 {
-	if (IsClientInGame(client))
-	{
-		kills[client]       = 0;
-		deaths[client]      = 0;
-		headshots[client]   = 0;
-		captures[client]    = 0;
-		damage_temp[client] = 0;
-		damage_summ[client] = 0;
+	kills[client] =
+	deaths[client] =
+	headshots[client] =
+	captures[client] =
+	damage_temp[client] =
+	damage_summ[client] = 0;
 
-		// Loop through all clients
-		for (new i = 1; i <= MaxClients; i++)
-		{
-			damage_given[client][i] = 0;
-			damage_taken[client][i] = 0;
-			hits[client][i]         = 0;
-			hurts[client][i]        = 0;
-		}
+	// Loop through all clients
+	for (new i = 1; i <= MaxClients; i++)
+	{
+		damage_given[client][i] =
+		damage_taken[client][i] =
+		hits[client][i]         =
+		hurts[client][i]        = 0;
 	}
 }
 
@@ -701,18 +663,14 @@ resetall(client)
  * -------------------------------------------------------------------------- */
 resethits(client)
 {
-	if (IsClientInGame(client))
+	for (new i = 1; i <= MaxClients; i++)
 	{
-		damage_temp[client] = 0;
-
-		for (new i = 1; i <= MaxClients; i++)
-		{
-			// Becaue all damage/hits is actually have done on by everyone
-			damage_given[client][i] = 0;
-			damage_taken[client][i] = 0;
-			hits[client][i]         = 0;
-			hurts[client][i]        = 0;
-		}
+		// Becaue all damage/hits is actually have done on by everyone
+		damage_temp[client]     =
+		damage_given[client][i] =
+		damage_taken[client][i] =
+		hits[client][i]         =
+		hurts[client][i]        = 0;
 	}
 }
 
@@ -722,9 +680,11 @@ resethits(client)
  * -------------------------------------------------------------------------- */
 public Action:Timer_WelcomePlayer(Handle:timer, any:client)
 {
-	// Time expired: kill timer
-	damagereport_info[client] = INVALID_HANDLE;
-	if (IsClientInGame(client)) CPrintToChat(client, "%t", "welcome");
+	// Get the client id
+	if ((client = GetClientOfUserId(client)))
+	{
+		CPrintToChat(client, "%t", "welcome");
+	}
 }
 
 /* Handler_DoNothing()
@@ -737,4 +697,4 @@ public Handler_DoNothing(Handle:menu, MenuAction:action, client, param){}
  *
  * Checks if a client is valid.
  * -------------------------------------------------------------------------- */
-bool:IsValidClient(client) return (client > 0 && !IsFakeClient(client)) ? true : false;
+bool:IsValidClient(client) return (1 <= client <= MaxClients && !IsFakeClient(client)) ? true : false;
